@@ -64,7 +64,7 @@ AI_Code_Reviewer/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone <your-repo-link>
+git clone https://github.com/Yash-200608/AI_Code_Reviewer
 cd AI_Code_Reviewer
 ```
 
