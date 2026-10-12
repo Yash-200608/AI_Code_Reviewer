@@ -1,0 +1,21 @@
+{
+  "clean.py": [],
+  "short_names.py": [
+    {"rule": "CR102", "line": 1},
+    {"rule": "CR102", "line": 2}
+  ],
+  "unreachable.py": [{"rule": "CR105", "line": 3}],
+  "loop_exempt.py": [],
+  "string_hash.py": [],
+  "exception_e.py": [],
+  "syntax_error.py": [{"rule": "CR000", "line": 1}],
+  "complex.py": [{"rule": "CR104", "line": 2}],
+  "known_false_positives": [
+    {
+      "file": "short_names.py",
+      "rule": "CR102",
+      "line": 1,
+      "note": "'w' is a plausible width abbreviation; flagged by design (single character)"
+    }
+  ]
+}

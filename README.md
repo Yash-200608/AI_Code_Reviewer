@@ -8,14 +8,22 @@ This project demonstrates **static code analysis using Python’s AST module** a
 
 ## 🚀 Features
 
-* ✅ Syntax error detection using `ast.parse()`
-* 📏 Code length analysis
-* 📝 Comment presence detection
-* 🔤 Variable naming analysis
-* 📊 Dynamic scoring system
-* 🏆 Grade classification (Outstanding, Excellent, Good, etc.)
+Every finding has a stable rule ID and a source line number.
+
+| ID | Rule | What it checks |
+|---|---|---|
+| CR000 | syntax-error | Code fails to parse (reports line and message) |
+| CR101 | long-function | A single function longer than 50 lines |
+| CR102 | short-name | Single-character names where they are bound (exempts `_`, loop vars `i j k n x y`, `except ... as e`, lambda args) |
+| CR103 | no-comments | 10+ lines of code with no comments or docstrings (uses the tokenizer, so `#` in strings is ignored) |
+| CR104 | high-complexity | Function cyclomatic complexity above 10 |
+| CR105 | unreachable-code | Statement after `return` / `raise` / `break` / `continue` |
+
+CR102 reports each short name **once, at its first binding**, not at every binding site.
+
+* 📊 Dynamic scoring system and 🏆 grade classification
 * 🌐 Web interface built with Streamlit
-* 🧠 Modular project structure (analyzer + scorer separation)
+* 🧠 Modular structure (analyzer + scorer separation)
 
 ---
 
@@ -38,10 +46,10 @@ This project demonstrates **static code analysis using Python’s AST module** a
 
 ## 🛠 Tech Stack
 
-* Python 3.x
+* Python 3.10+
 * Streamlit
 * AST (Abstract Syntax Tree module)
-* Regular Expressions (`re`)
+* pytest (tests)
 
 ---
 
@@ -49,12 +57,15 @@ This project demonstrates **static code analysis using Python’s AST module** a
 
 ```
 AI_Code_Reviewer/
-│
 ├── app.py
 ├── analyzer.py
 ├── scorer.py
 ├── requirements.txt
-└── venv/
+├── requirements-dev.txt
+├── tests/
+│   ├── corpus/          # labeled snippets + expected.json
+│   └── test_*.py
+└── .github/workflows/ci.yml
 ```
 
 ---
@@ -108,10 +119,36 @@ http://localhost:8501
 
 ---
 
+## 🧪 Running Tests
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+`tests/corpus/expected.json` records the expected rule/line for each corpus snippet,
+plus known false positives; `python -m pytest -s tests/test_corpus.py` prints per-rule precision/recall.
+
+### Corpus results
+
+Measured on `tests/corpus` (8 snippets; small, so treat as a regression guard, not a benchmark):
+
+| Rule | TP | FP | FN | Precision | Recall |
+|---|---|---|---|---|---|
+| CR000 | 1 | 0 | 0 | 1.00 | 1.00 |
+| CR102 | 1 | 1 | 0 | 0.50 | 1.00 |
+| CR104 | 1 | 0 | 0 | 1.00 | 1.00 |
+| CR105 | 1 | 0 | 0 | 1.00 | 1.00 |
+
+The one recorded false positive is `w` in `short_names.py` (a plausible width abbreviation, flagged by design).
+CR101 and CR103 have unit tests but no positive corpus snippet yet.
+
+---
+
 ## 📊 Scoring Logic
 
 * Base Score: 100
-* Syntax Error: −10
+* Syntax Error: score 0 (code that does not parse is not analyzed further)
 * Each detected issue: −3
 * Grades:
 
@@ -136,9 +173,8 @@ http://localhost:8501
 
 ## 🔮 Future Improvements
 
-* AST-based complexity analysis
-* Cyclomatic complexity calculation
 * Recursion detection
+* Duplicate-code detection
 * GitHub repository analyzer
 * Machine Learning-based code scoring
 * Advanced UI styling
